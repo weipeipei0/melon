@@ -11,28 +11,28 @@
       <header class="hero hero-static">
         <div class="hero-copy">
           <h1>MelonTicket 助手</h1>
-          <p>激活成功后才会显示验证码与抢票配置。</p>
+          <p>无需激活；默认使用本地 ddddocr 服务（127.0.0.1:5000）。</p>
         </div>
       </header>
 
       <section class="panel license-panel">
-        <h2>激活码</h2>
+        <h2>OCR 状态</h2>
         <div class="license-row">
           <input
             id="ocrActivationCode"
             class="license-input"
             type="text"
             inputmode="text"
-            placeholder="请输入激活码"
+            placeholder="无需填写"
             spellcheck="false"
           >
-          <button id="activateButton" class="license-btn" type="button">激活</button>
+          <button id="activateButton" class="license-btn" type="button">无需激活</button>
         </div>
         <p id="licenseStatus" class="license-status" aria-live="polite">未激活</p>
-        <p class="field-hint">激活码会首绑当前机器；插件更新后会沿用同一设备标识继续使用。</p>
+        <p class="field-hint">请先在本机启动 ddddocr API（推荐端口 5000），插件将自动识别验证码。</p>
       </section>
 
-      <div id="featureRoot" hidden>
+      <div id="featureRoot">
         <section class="panel">
         <h2>基础配置</h2>
 

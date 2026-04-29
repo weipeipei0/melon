@@ -11,12 +11,12 @@
       <header class="hero hero-static">
         <div class="hero-copy">
           <h1>MelonTicket 助手</h1>
-          <p>请先激活 OCR 验证码服务后再启动自动化。</p>
+          <p>无需激活，默认使用内置/备用 OCR 方案。</p>
         </div>
       </header>
 
       <section class="panel license-panel">
-        <h2>授权状态</h2>
+        <h2>OCR 状态</h2>
         <div class="license-row">
           <input
             id="ocrActivationCode"
@@ -29,7 +29,7 @@
           <button id="activateButton" class="license-btn" type="button">无需激活</button>
         </div>
         <p id="licenseStatus" class="license-status" aria-live="polite">未激活</p>
-        <p class="field-hint">后台 OCR 请求必须携带授权 token；token 过期后会自动续期。</p>
+        <p class="field-hint">优先使用免 token OCR；如失败再尝试已配置的原 OCR 服务。</p>
       </section>
 
       <div id="featureRoot" hidden>

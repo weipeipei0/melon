@@ -1,0 +1,90 @@
+{
+  "manifest_version": 3,
+  "name": "Melon Ticket Flow Helper",
+  "version": "0.2.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuxToSUANkyipF/eJQH7icneaHNhWODwQyZR/WCeF+awsh4xfgvYEFzXuRHHzOHQIkWRlGI44j0xSkKvu6qUgg06TKOIwUGufPUMKnAdhxuW6Lbin2wNoJ8mOtflm5UvqSD7B/YhMiI3KxG6SIuRWaNK96Qdn2mTt12YblNZkd18D57fuj6q2vrIysfgHYXPsGMtlzrRli6uskhJWWv0lQ0szbX9DoK6fKVB8gESdSUP8xaWj7WbykJOUgYMjw9IEEo3IEy7u+7kDW+PIiLGjO3l1Km4z5GSCMvt/hcM6Zz9vG6mxjX953huKB9nvVzAj3hgR70D64Tc4E3JNFghGMQIDAQAB",
+  "description": "Modular browser automation scaffold for Melon Ticket flows.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "offscreen",
+    "debugger"
+  ],
+  "host_permissions": [
+    "https://ticket.melon.com/*",
+    "https://tkglobal.melon.com/*",
+    "https://gmember.melon.com/*",
+    "https://api.nexuschat.top/*",
+    "https://*.dingtalk.com/*",
+    "http://112.124.102.128/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "action": {
+    "default_title": "Melon Ticket Flow Helper",
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://ticket.melon.com/*",
+        "https://tkglobal.melon.com/*"
+      ],
+      "js": [
+        "content/main-world/onestop-alert-guard.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://ticket.melon.com/*",
+        "https://tkglobal.melon.com/*",
+        "https://gmember.melon.com/*"
+      ],
+      "js": [
+        "shared/constants.js",
+        "shared/logger.js",
+        "shared/messages.js",
+        "shared/melon-url.js",
+        "shared/area-preferences.js",
+        "shared/seat-preferences.js",
+        "content/ui/log-overlay.js",
+        "content/state/runtime-state.js",
+        "content/detection/page-detector.js",
+        "content/dom/query.js",
+        "content/dom/wait.js",
+        "content/dom/safe-actions.js",
+        "content/messaging/runtime-client.js",
+        "content/stages/catalog/idle-stage.js",
+        "content/stages/product/product-stage-context.js",
+        "content/stages/product/product-stage-selectors.js",
+        "content/stages/product/product-stage-actions.js",
+        "content/stages/product/product-stage-steps.js",
+        "content/stages/product/product-stage-flow.js",
+        "content/stages/reservation/reservation-stage-context.js",
+        "content/stages/reservation/reservation-stage-selectors.js",
+        "content/stages/reservation/reservation-seat-area-discovery.js",
+        "content/stages/reservation/reservation-seat-area-runner.js",
+        "content/stages/reservation/reservation-seat-picker.js",
+        "content/stages/reservation/reservation-captcha-engine.js",
+        "content/stages/reservation/reservation-stage-actions.js",
+        "content/stages/reservation/reservation-stage-steps.js",
+        "content/stages/reservation/reservation-stage-flow.js",
+        "content/stages/catalog/product-stage.js",
+        "content/stages/catalog/reservation-stage.js",
+        "content/stages/catalog/login-stage.js",
+        "content/stages/catalog/payment-stage.js",
+        "content/stages/stage-registry.js",
+        "content/stages/stage-runner.js",
+        "content/content-script.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

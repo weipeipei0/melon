@@ -1,0 +1,1 @@
+(function initProductStage(t){const e=t.MelonTicketApp=t.MelonTicketApp||{};const{PAGE_TYPES:n,RUN_MODES:o,STAGE_KEYS:c}=e.constants;e.productStage={key:c.PRODUCT,matches(t){return t.settings.enabled&&t.settings.runMode!==o.ONESTOP_ONLY&&t.detection.pageType===n.PRODUCT},async run(t){return e.productStageFlow.run(t)}}})(globalThis);

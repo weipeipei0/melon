@@ -1,0 +1,1 @@
+(function initIdleStage(e){const t=e.MelonTicketApp=e.MelonTicketApp||{};const{STAGE_KEYS:n}=t.constants;t.idleStage={key:n.IDLE,matches(e){return!e.settings.enabled},run(){return{key:n.IDLE,decision:"automation_disabled"}}}})(globalThis);

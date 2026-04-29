@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Melon Ticket Flow Helper</title>
+    <link rel="stylesheet" href="./popup.css">
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero hero-static">
+        <div class="hero-copy">
+          <h1>MelonTicket 助手</h1>
+          <p>激活成功后才会显示验证码与抢票配置。</p>
+        </div>
+      </header>
+
+      <section class="panel license-panel">
+        <h2>激活码</h2>
+        <div class="license-row">
+          <input
+            id="ocrActivationCode"
+            class="license-input"
+            type="text"
+            inputmode="text"
+            placeholder="请输入激活码"
+            spellcheck="false"
+          >
+          <button id="activateButton" class="license-btn" type="button">激活</button>
+        </div>
+        <p id="licenseStatus" class="license-status" aria-live="polite">未激活</p>
+        <p class="field-hint">激活码会首绑当前机器；插件更新后会沿用同一设备标识继续使用。</p>
+      </section>
+
+      <div id="featureRoot" hidden>
+        <section class="panel">
+        <h2>基础配置</h2>
+
+        <label class="field" for="eventUrl">
+          <span>演唱会页面 URL</span>
+          <input
+            id="eventUrl"
+            type="url"
+            inputmode="url"
+            placeholder="https://tkglobal.melon.com/performance/index.htm?langCd=EN&prodId=212835"
+            spellcheck="false"
+          >
+        </label>
+
+        <label class="field" for="tickIntervalMs">
+          <span>轮询间隔 (ms)</span>
+          <input id="tickIntervalMs" type="number" min="200" step="100">
+        </label>
+
+        <label class="field" for="runMode">
+          <span>运行模式</span>
+          <select id="runMode">
+            <option value="full_flow">从商品页开始</option>
+            <option value="onestop_only">仅 onestop 页面接管</option>
+          </select>
+        </label>
+
+        <div class="field-group">
+          <label class="field" for="areaSwitchDelayMs">
+            <span>切换区域间隔 (ms)</span>
+            <input id="areaSwitchDelayMs" type="number" min="0" step="50">
+          </label>
+
+          <label class="field" for="areaSwitchJitterMs">
+            <span>随机抖动范围 (ms)</span>
+            <input id="areaSwitchJitterMs" type="number" min="0" step="50">
+          </label>
+
+          <label class="field" for="seatLockReactionDelayMs">
+            <span>锁座反应延迟 (ms)</span>
+            <input id="seatLockReactionDelayMs" type="number" min="0" step="50">
+          </label>
+
+          <label class="field" for="reservationPageMaxStayMs">
+            <span>选座页面停留上限 (m)</span>
+            <input id="reservationPageMaxStayMs" type="number" min="0" step="0.5">
+          </label>
+        </div>
+        <p class="field-hint">填 0 表示不限制（无限停留）。这里按分钟填写，超过这个时长后，会先关闭当前 onestop 选座页，再回商品页点击一次 Get Tickets 打开新的选座页。</p>
+
+        <div class="panel-head">
+          <h3>商品页筛选</h3>
+        </div>
+
+        <div class="field-group">
+          <label class="field" for="dateMonth">
+            <span>日期-月</span>
+            <select id="dateMonth"></select>
+          </label>
+
+          <label class="field" for="dateDay">
+            <span>日期-日</span>
+            <select id="dateDay"></select>
+          </label>
+        </div>
+
+        <label class="field" for="timeValue">
+          <span>日期-时间</span>
+          <select id="timeValue"></select>
+        </label>
+
+        <label class="field" for="seatSelectionMode">
+          <span>选座模式</span>
+          <select id="seatSelectionMode">
+            <option value="preferred_areas">自定义区域</option>
+            <option value="preferred_seats">自定义座位</option>
+            <option value="small_venue_seats">小场座位</option>
+          </select>
+        </label>
+
+        <section id="preferredAreasSection" class="mode-panel">
+          <div class="field">
+            <span>自定义区域</span>
+            <div id="preferredAreaTags" class="tag-list" aria-live="polite"></div>
+            <input
+              id="preferredAreaInput"
+              type="text"
+              inputmode="text"
+              placeholder="输入 楼层,区域；多个组合之间用 ; 或 ；，回车添加"
+              spellcheck="false"
+            >
+            <p class="field-hint">规则：楼层与区域之间用逗号，例如 1,C3 或 Floor,A；多个“楼层,区域”组合之间用分号，例如 1,C3；2,A4；Floor,A。每输入一项后需要按回车，才会添加到上方列表。</p>
+          </div>
+        </section>
+
+        <section id="preferredSeatsSection" class="mode-panel" hidden>
+          <div class="field">
+            <span>自定义座位</span>
+            <div id="preferredSeatTags" class="tag-list" aria-live="polite"></div>
+            <input
+              id="preferredSeatInput"
+              type="text"
+              inputmode="text"
+              placeholder="输入 楼层,区域,X,Y；多个组合之间用 ; 或 ；，回车添加"
+              spellcheck="false"
+            >
+            <p class="field-hint">规则：楼层与区域之间用逗号，后面再接 X,Y；多个“楼层,区域,X,Y”组合之间用分号。例如：1,C3,1277.55,817.37；Floor,A,1289.10,817.37。若只按一行或一列匹配，可留空一个坐标，例如 1,C3,,1366.2 或 1,C3,1366.2,。若 X 和 Y 都留空，例如 2,C3,,，则表示整个区域都可。每输入一项后需要按回车，才会添加到上方列表。</p>
+          </div>
+        </section>
+
+        <section id="smallVenueSeatsSection" class="mode-panel" hidden>
+          <div class="field">
+            <span>小场座位</span>
+            <div id="smallVenueSeatTags" class="tag-list" aria-live="polite"></div>
+            <input
+              id="smallVenueSeatInput"
+              type="text"
+              inputmode="text"
+              placeholder="输入 X,Y 或 X, 或 ,Y 或 ,；多个组合之间用 ; 或 ；，回车添加"
+              spellcheck="false"
+            >
+            <p class="field-hint">规则：小场模式直接按座位坐标选座，不需要填写区域。`X,Y` 表示精确点选，`X,` 表示按列，`,Y` 表示按行，`,` 表示整场按默认排序选第一个可用座位。多个条件之间用分号，例如 1277.55,817.37；1289.10,；,817.37；,。每输入一项后需要按回车，才会添加到上方列表。</p>
+          </div>
+          <label class="field" for="smallVenueRefreshIntervalSec">
+            <span>小场刷新频率 (s)</span>
+            <input id="smallVenueRefreshIntervalSec" type="number" min="0" step="0.5">
+          </label>
+          <p class="field-hint">填 0 表示不自动刷新。超过这个时长仍未选中座位时，会点击页面里的 Refresh 按钮刷新座位图。</p>
+        </section>
+
+        <label class="toggle-row" for="debug">
+          <span>输出调试日志</span>
+          <input id="debug" type="checkbox">
+        </label>
+
+        <label class="toggle-row" for="blockOnestopTryAgainDialogs">
+          <span>拦截 Please try again. 弹窗与重载</span>
+          <input id="blockOnestopTryAgainDialogs" type="checkbox">
+        </label>
+
+        <div class="panel-head">
+          <h3>成功通知</h3>
+        </div>
+
+        <label class="field" for="notificationProvider">
+          <span>通知渠道</span>
+          <select id="notificationProvider">
+            <option value="none">不发送</option>
+            <option value="dingtalk">钉钉</option>
+            <option value="telegram">Telegram</option>
+          </select>
+        </label>
+
+        <label class="field" for="successAlertTrigger">
+          <span>成功提醒触发时机</span>
+          <select id="successAlertTrigger">
+            <option value="select_price">进入价格选择页</option>
+            <option value="seat_completed">点击 Seat Selection Completed</option>
+          </select>
+        </label>
+
+        <section id="notificationDingTalkSection">
+          <label class="field" for="dingTalkWebhook">
+            <span>钉钉 Webhook</span>
+            <input
+              id="dingTalkWebhook"
+              type="url"
+              inputmode="url"
+              placeholder="https://oapi.dingtalk.com/robot/send?access_token=..."
+              spellcheck="false"
+            >
+          </label>
+
+          <label class="field" for="dingTalkSecret">
+            <span>钉钉加签 Secret</span>
+            <input
+              id="dingTalkSecret"
+              type="text"
+              inputmode="text"
+              placeholder="SEC..."
+              spellcheck="false"
+            >
+          </label>
+        </section>
+
+        <section id="notificationTelegramSection" hidden>
+          <label class="field" for="telegramBotToken">
+            <span>Telegram Bot Token</span>
+            <input
+              id="telegramBotToken"
+              type="text"
+              inputmode="text"
+              placeholder="123456789:AA..."
+              spellcheck="false"
+            >
+          </label>
+
+          <label class="field" for="telegramChatId">
+            <span>Telegram Chat ID</span>
+            <input
+              id="telegramChatId"
+              type="text"
+              inputmode="text"
+              placeholder="-1001234567890 或 @channel_name"
+              spellcheck="false"
+            >
+          </label>
+        </section>
+
+        <div class="button-row">
+          <button id="saveButton" class="save" type="button">保存配置</button>
+          <button id="testNotificationButton" class="test-btn" type="button">测试通知</button>
+        </div>
+        <p id="feedback" class="feedback" aria-live="polite"></p>
+        </section>
+
+        <section class="actions-panel">
+          <div class="actions">
+            <button id="startButton" class="start" type="button">启动</button>
+            <button id="stopButton" class="stop" type="button">停止</button>
+          </div>
+        </section>
+
+        <section class="panel feature-head">
+          <div class="panel-head panel-head-inline">
+            <h2>功能配置</h2>
+            <div id="runStatus" class="run-status stopped">已停止</div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../shared/constants.js"></script>
+    <script src="../shared/logger.js"></script>
+    <script src="../shared/messages.js"></script>
+    <script src="../shared/melon-url.js"></script>
+    <script src="../shared/area-preferences.js"></script>
+    <script src="../shared/seat-preferences.js"></script>
+    <script src="./popup.js"></script>
+  </body>
+</html>

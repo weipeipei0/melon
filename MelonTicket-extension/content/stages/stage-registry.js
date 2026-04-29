@@ -1,0 +1,1 @@
+(function initStageRegistry(e){const t=e.MelonTicketApp=e.MelonTicketApp||{};if(t.stageRegistry){return}const i=[t.idleStage,t.loginStage,t.paymentStage,t.reservationStage,t.productStage].filter(Boolean);t.stageRegistry={all(){return i.slice()},resolve(e){return i.find(t=>t.matches(e))||null}}})(globalThis);
